@@ -1,0 +1,5 @@
+coingecko:
+  api:
+    key: CG-FrMV4cRvZHFcQMT3TSA51jJa
+    rate-limit: 30
+    refresh-rate: 60000
