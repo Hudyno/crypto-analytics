@@ -3,6 +3,16 @@ spring:
     import:
       - cryptocompare.yaml
 
+  datasource:
+    url: jdbc:postgresql://localhost:5432/crypto_currencies_db
+    driverClassName: org.postgresql.Driver
+    username: postgres
+    password: admin
+  jpa:
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    hibernate:
+      ddl-auto: update
+
 coingecko:
   api:
     key: CG-FrMV4cRvZHFcQMT3TSA51jJa

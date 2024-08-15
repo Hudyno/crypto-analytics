@@ -1,0 +1,19 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres
+    container_name: crypto-analytics-local
+    restart: always
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=admin
+      - POSTGRES_DB=crypto_currencies_db
+    ports:
+      - '5432:5432'
+    volumes:
+      - crypto_currencies_db:/var/lib/postgresql/data
+
+volumes:
+  crypto_currencies_db:
+    driver: local
