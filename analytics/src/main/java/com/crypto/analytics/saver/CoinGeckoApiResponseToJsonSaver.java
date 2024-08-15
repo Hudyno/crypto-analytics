@@ -1,4 +1,4 @@
-package com.crypto.analytics.service;
+package com.crypto.analytics.saver;
 
 import com.crypto.analytics.config.CoinGeckoConfig;
 import com.crypto.analytics.util.CollectionUtil;
@@ -9,6 +9,7 @@ import com.litesoftwares.coingecko.impl.CoinGeckoApiClientImpl;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -26,14 +27,14 @@ public class CoinGeckoApiResponseToJsonSaver extends ApiResponseToJsonSaver {
         this.saveApiResponse(coinGeckoApiClientImpl::getCoinList, "test.json");
     }
 
-    public void saveAllCoinById() {
+    public void saveAllCoinById(String fileName) {
         List<CoinList> coinList = jsonUtil.readJson(new File("coin_id_list.json"), new TypeReference<>(){});
         List<String> idList = coinList.stream().map(CoinList::getId).toList();
         coinList.clear();
 
         this.batchSaveApiResponse(
                 (subList, params) -> coinGeckoApiClientImpl.getCoinById((List<String>) subList),
-                "coin_test.json",
+                fileName,
                 idList
         );
     }

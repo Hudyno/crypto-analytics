@@ -1,4 +1,4 @@
-package com.crypto.analytics.service;
+package com.crypto.analytics.saver;
 
 import com.crypto.analytics.util.JsonUtil;
 import com.crypto.analytics.util.CollectionUtil;
