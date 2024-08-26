@@ -25,9 +25,21 @@ public class CryptoCompareApiResponseToJsonSaver extends ApiResponseToJsonSaver 
         this.analyticsCryptoCompareMinApi = analyticsCryptoCompareMinApi;
     }
 
-    public void saveAllHistoricalOHLCV(String fileName, String quoteSymbol) {
-        Response<AssetSummary> response = jsonUtil.readJson(new File("all_coins_v2.json"), new TypeReference<>(){});
-        List<AssetSummary> assetSummaryList = response.getData().getList();
+    public void saveCexHistoricalOHLCV(String fileName) {
+        List<PairLight> pairs = analyticsPairService.getDistinctPairsByPreferredQuoteSymbols(ExchangeType.CEX);
+        List<com.crypto.cryptocompare.api.data.request.HistoricalOHLCVRequest> requestList = pairs.stream()
+                .map(pair -> {
+                    com.crypto.cryptocompare.api.data.request.HistoricalOHLCVRequest request = new com.crypto.cryptocompare.api.data.request.HistoricalOHLCVRequest(pair.getExchange(), pair.getBaseSymbol() + '-' + pair.getQuoteSymbol());
+                    request.setLimit(5000);
+                    return request;
+                }).toList();
+
+        this.batchSaveApiResponse(
+                (subList, params) -> analyticsCryptoCompareDataApi.getCexDailyHistoricalOHLCV((List<com.crypto.cryptocompare.api.data.request.HistoricalOHLCVRequest>) subList),
+                fileName,
+                requestList
+        );
+    }
 
         List<HistoricalOHLCVRequest> requestList = assetSummaryList.stream()
                                                                   .map(coin -> {
