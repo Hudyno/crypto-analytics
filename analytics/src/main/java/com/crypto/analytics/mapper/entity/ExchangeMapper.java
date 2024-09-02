@@ -12,10 +12,8 @@ import org.mapstruct.Mapping;
         uses = StatusMapper.class)
 public abstract class ExchangeMapper {
 
-    @Mapping(target = "status", source = "exchangeData.exchangeStatus", qualifiedByName = StatusMapper.FROM_STRING)
+    @Mapping(target = "status", source = "data.exchangeStatus", qualifiedByName = StatusMapper.FROM_STRING)
     @Mapping(target = "exchangeType", source = "type")
     public abstract Exchange fromExchangeData(ExchangeData data, ExchangeType type);
-
-
 
 }
