@@ -12,6 +12,14 @@ spring:
     database-platform: org.hibernate.dialect.PostgreSQLDialect
     hibernate:
       ddl-auto: update
+    properties:
+      hibernate:
+        jdbc:
+          batch_size: 30
+        order_inserts: true
+        order_updates: true
+        format_sql: true
+    show-sql: true
 
 coingecko:
   api:
