@@ -1,59 +1,61 @@
 package com.crypto.analytics.saver;
 
-import com.crypto.analytics.api.AnalyticsCryptoCompareMinApi;
+import com.crypto.analytics.api.AnalyticsCryptoCompareDataApi;
+import com.crypto.analytics.persistence.dto.PairLight;
+import com.crypto.analytics.persistence.service.AnalyticsPairService;
 import com.crypto.analytics.util.CollectionUtil;
 import com.crypto.analytics.util.JsonUtil;
 import com.crypto.cryptocompare.api.configuration.CryptoCompareConfig;
-import com.crypto.cryptocompare.api.data.response.AssetSummary;
-import com.crypto.cryptocompare.api.data.response.Response;
-import com.crypto.cryptocompare.api.min.request.HistoricalOHLCVRequest;
-import com.fasterxml.jackson.core.type.TypeReference;
+import com.crypto.cryptocompare.api.data.request.HistoricalOHLCVParameters;
+import com.crypto.persistence.model.ExchangeType;
 import org.springframework.stereotype.Service;
 
-import java.io.File;
 import java.util.List;
 
 @Service
 public class CryptoCompareApiResponseToJsonSaver extends ApiResponseToJsonSaver {
 
-    private final AnalyticsCryptoCompareMinApi analyticsCryptoCompareMinApi;
+    private final AnalyticsPairService analyticsPairService;
+    private final AnalyticsCryptoCompareDataApi analyticsCryptoCompareDataApi;
 
     public CryptoCompareApiResponseToJsonSaver(JsonUtil jsonUtil, CollectionUtil collectionUtil,
-                                               AnalyticsCryptoCompareMinApi analyticsCryptoCompareMinApi, CryptoCompareConfig cryptoCompareConfig) {
+                                               CryptoCompareConfig cryptoCompareConfig,
+                                               AnalyticsPairService analyticsPairService, AnalyticsCryptoCompareDataApi analyticsCryptoCompareDataApi) {
 
         super(jsonUtil, collectionUtil, cryptoCompareConfig.getRateLimit(), cryptoCompareConfig.getRefreshRate());
-        this.analyticsCryptoCompareMinApi = analyticsCryptoCompareMinApi;
+        this.analyticsPairService = analyticsPairService;
+        this.analyticsCryptoCompareDataApi = analyticsCryptoCompareDataApi;
     }
 
     public void saveCexHistoricalOHLCV(String fileName) {
         List<PairLight> pairs = analyticsPairService.getDistinctPairsByPreferredQuoteSymbols(ExchangeType.CEX);
-        List<com.crypto.cryptocompare.api.data.request.HistoricalOHLCVRequest> requestList = pairs.stream()
-                .map(pair -> {
-                    com.crypto.cryptocompare.api.data.request.HistoricalOHLCVRequest request = new com.crypto.cryptocompare.api.data.request.HistoricalOHLCVRequest(pair.getExchange(), pair.getBaseSymbol() + '-' + pair.getQuoteSymbol());
-                    request.setLimit(5000);
-                    return request;
-                }).toList();
+        List<HistoricalOHLCVParameters> parameters = createInceptionOHLCVRequest(pairs);
 
         this.batchSaveApiResponse(
-                (subList, params) -> analyticsCryptoCompareDataApi.getCexDailyHistoricalOHLCV((List<com.crypto.cryptocompare.api.data.request.HistoricalOHLCVRequest>) subList),
+                (subList, params) -> analyticsCryptoCompareDataApi.getCexDailyHistoricalOHLCV((List<HistoricalOHLCVParameters>) subList),
                 fileName,
-                requestList
+                parameters
         );
     }
 
-        List<HistoricalOHLCVRequest> requestList = assetSummaryList.stream()
-                                                                  .map(coin -> {
-                                                                      HistoricalOHLCVRequest request = new HistoricalOHLCVRequest(coin.getSymbol().toUpperCase(), quoteSymbol);
-                                                                      request.setAllData(true);
-                                                                      return request;
-                                                                  })
-                                                                  .toList();
+    public void saveDexHistoricalOHLCV(String fileName) {
+        List<PairLight> pairs = analyticsPairService.getDistinctPairsByPreferredQuoteSymbols(ExchangeType.DEX);
+        List<HistoricalOHLCVParameters> parameters = createInceptionOHLCVRequest(pairs);
 
         this.batchSaveApiResponse(
-                (subList, params) -> analyticsCryptoCompareMinApi.getSymbolHistoricalOHLCV((List<HistoricalOHLCVRequest>) subList),
+                (subList, params) -> analyticsCryptoCompareDataApi.getDexDailyHistoricalOHLCV((List<HistoricalOHLCVParameters>) subList),
                 fileName,
-                requestList
+                parameters
         );
+    }
+
+    private List<HistoricalOHLCVParameters> createInceptionOHLCVRequest(List<PairLight> pairs) {
+        return pairs.stream()
+                    .map(pair -> {
+                        HistoricalOHLCVParameters request = new HistoricalOHLCVParameters(pair.getExchange(), pair.getBaseSymbol() + '-' + pair.getQuoteSymbol());
+                        request.setLimit(5000);
+                        return request;
+                    }).toList();
     }
 
 }
