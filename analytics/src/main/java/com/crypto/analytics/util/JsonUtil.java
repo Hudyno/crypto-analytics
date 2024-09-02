@@ -15,6 +15,8 @@ import java.util.List;
 @Service
 public class JsonUtil {
 
+    private static final String JSON_PARSE_ERROR_MSG = "Could not parse json";
+
     private final ObjectMapper objectMapper = new ObjectMapper();
 
     public <T> T readJson(File file, TypeReference<T> typeReference) {
@@ -23,7 +25,7 @@ public class JsonUtil {
             return objectMapper.readValue(file, typeReference);
 
         }catch (IOException e) {
-            throw new RuntimeException("Could not parse json", e);
+            throw new RuntimeException(JSON_PARSE_ERROR_MSG, e);
         }
     }
 
@@ -34,7 +36,7 @@ public class JsonUtil {
             log.info("Writing finished");
 
         }catch (IOException e) {
-            throw new RuntimeException("Could not parse json", e);
+            throw new RuntimeException(JSON_PARSE_ERROR_MSG, e);
         }
     }
 
@@ -45,7 +47,7 @@ public class JsonUtil {
                 return (ArrayNode) objectMapper.readTree(file);
 
             }catch (IOException e) {
-                throw new RuntimeException("Could not parse json", e);
+                throw new RuntimeException(JSON_PARSE_ERROR_MSG, e);
             }
         }
         return objectMapper.createArrayNode();
