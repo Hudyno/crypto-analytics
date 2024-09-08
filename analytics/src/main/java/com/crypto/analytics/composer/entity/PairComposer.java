@@ -1,6 +1,7 @@
 package com.crypto.analytics.composer.entity;
 
 import com.crypto.analytics.mapper.entity.PairMapper;
+import com.crypto.cryptocompare.api.data.response.ExchangeData;
 import com.crypto.cryptocompare.api.data.response.InstrumentData;
 import com.crypto.persistence.model.Exchange;
 import com.crypto.persistence.model.Pair;
@@ -30,10 +31,10 @@ public class PairComposer {
         return Optional.of(pair);
     }
 
-    public List<Pair> fromInstrumentData(List<? extends InstrumentData> data, String exchangeName) {
-        return data.stream()
-                   .map(it -> this.fromInstrumentData(it, exchangeName))
-                   .flatMap(Optional::stream)
-                   .toList();
+    public List<Pair> fromExchangeData(ExchangeData data, String exchangeName) {
+        return data.getInstrumentDataMap().values().stream()
+                                                   .map(instrument -> this.fromInstrumentData(instrument, exchangeName))
+                                                   .flatMap(Optional::stream)
+                                                   .toList();
     }
 }

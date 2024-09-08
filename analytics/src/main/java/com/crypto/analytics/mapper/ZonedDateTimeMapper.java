@@ -15,7 +15,7 @@ public abstract class ZonedDateTimeMapper {
     public static final String FROM_UNIX_TIMESTAMP = "fromUnixTimestamp";
 
     @Named(FROM_UNIX_TIMESTAMP)
-    public ZonedDateTime fromUnixTimestamp(Integer timestamp) {
+    public ZonedDateTime fromUnixTimestamp(Long timestamp) {
         if (isNull(timestamp)) {
             return null;
         }

@@ -69,12 +69,10 @@ public class ApiToDatabasePopulate {
     }
 
     private void processExchangeData(Map<String,? extends ExchangeData> exchangeNameExchangeData) {
-        List<? extends ExchangeData> data = exchangeNameExchangeData.values().stream().toList();
 
-        List<Pair> pairs = data.stream()
-                               .flatMap(it -> it.getInstrumentDataMap().entrySet().stream())
-                               .flatMap(entry -> pairComposer.fromInstrumentData(entry.getValue(), entry.getKey()).stream())
-                               .toList();
+        List<Pair> pairs = exchangeNameExchangeData.entrySet().stream()
+                                                              .flatMap(entry -> pairComposer.fromExchangeData(entry.getValue(), entry.getKey()).stream())
+                                                              .toList();
 
         pairService.saveAll(pairs);
     }

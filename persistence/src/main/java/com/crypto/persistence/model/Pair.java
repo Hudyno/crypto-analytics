@@ -18,13 +18,15 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.time.ZonedDateTime;
+
 @Entity
 @Getter
 @Setter
 @NoArgsConstructor
 @Table(
         indexes = {
-                @Index(name = "idx_exchange", columnList = "exchange")
+                @Index(name = "idx_exchange_name", columnList = "exchange_name")
         },
         uniqueConstraints = {
                 @UniqueConstraint(columnNames = { "baseSymbol", "exchange", "quoteSymbol" })
@@ -50,4 +52,13 @@ public class Pair {
     @NotNull
     @Enumerated(EnumType.STRING)
     private Status status;
+
+    @NotNull
+    private ZonedDateTime firstTradeTime;
+
+    @NotNull
+    private ZonedDateTime lastTradeTime;
+
+    @NotNull
+    private Long totalTrades;
 }
