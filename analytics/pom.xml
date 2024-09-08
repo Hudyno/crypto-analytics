@@ -19,6 +19,7 @@
         <mapstruct.version>1.5.3.Final</mapstruct.version>
         <mavenCompiler.version>3.11.0</mavenCompiler.version>
         <lombokBinding.version>0.2.0</lombokBinding.version>
+        <apache-common-math.version>3.6.1</apache-common-math.version>
     </properties>
 
     <dependencies>
@@ -59,6 +60,12 @@
             <groupId>org.mapstruct</groupId>
             <artifactId>mapstruct</artifactId>
             <version>${mapstruct.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-math3</artifactId>
+            <version>${apache-common-math.version}</version>
         </dependency>
     </dependencies>
 
