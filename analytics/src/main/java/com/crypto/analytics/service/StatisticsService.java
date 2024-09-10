@@ -1,7 +1,7 @@
 package com.crypto.analytics.service;
 
-import com.crypto.analytics.model.DescriptiveStatisticsDto;
-import com.crypto.analytics.model.StatisticalRelationshipDto;
+import com.crypto.analytics.dto.DescriptiveStatisticsDto;
+import com.crypto.analytics.dto.StatisticalRelationshipDto;
 import org.apache.commons.math3.stat.correlation.Covariance;
 import org.apache.commons.math3.stat.correlation.PearsonsCorrelation;
 import org.apache.commons.math3.stat.descriptive.moment.Variance;

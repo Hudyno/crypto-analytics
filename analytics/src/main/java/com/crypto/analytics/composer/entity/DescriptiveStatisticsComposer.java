@@ -1,7 +1,7 @@
 package com.crypto.analytics.composer.entity;
 
 import com.crypto.analytics.mapper.entity.DescriptiveStatisticsMapper;
-import com.crypto.analytics.model.DescriptiveStatisticsDto;
+import com.crypto.analytics.dto.DescriptiveStatisticsDto;
 import com.crypto.persistence.model.DescriptiveStatistics;
 import com.crypto.persistence.model.IntervalType;
 import com.crypto.persistence.model.Metrics;

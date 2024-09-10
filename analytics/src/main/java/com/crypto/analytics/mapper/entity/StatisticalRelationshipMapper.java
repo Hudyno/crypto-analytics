@@ -1,6 +1,6 @@
 package com.crypto.analytics.mapper.entity;
 
-import com.crypto.analytics.model.StatisticalRelationshipDto;
+import com.crypto.analytics.dto.StatisticalRelationshipDto;
 import com.crypto.persistence.model.StatisticalRelationship;
 import org.mapstruct.Mapper;
 

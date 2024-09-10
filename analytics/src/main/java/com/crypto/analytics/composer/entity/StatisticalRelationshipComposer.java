@@ -1,7 +1,7 @@
 package com.crypto.analytics.composer.entity;
 
 import com.crypto.analytics.mapper.entity.StatisticalRelationshipMapper;
-import com.crypto.analytics.model.StatisticalRelationshipDto;
+import com.crypto.analytics.dto.StatisticalRelationshipDto;
 import com.crypto.persistence.model.Coin;
 import com.crypto.persistence.model.IntervalType;
 import com.crypto.persistence.model.Period;

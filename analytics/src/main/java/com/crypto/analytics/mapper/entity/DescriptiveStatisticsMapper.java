@@ -1,6 +1,6 @@
 package com.crypto.analytics.mapper.entity;
 
-import com.crypto.analytics.model.DescriptiveStatisticsDto;
+import com.crypto.analytics.dto.DescriptiveStatisticsDto;
 import com.crypto.persistence.model.DescriptiveStatistics;
 import org.mapstruct.Mapper;
 

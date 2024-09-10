@@ -1,4 +1,4 @@
-package com.crypto.analytics.model;
+package com.crypto.analytics.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
