@@ -25,4 +25,27 @@ public class StatisticsService {
                 descriptiveStatistics.getMax(), descriptiveStatistics.getN()
         );
     }
+
+    public static StatisticalRelationshipDto calculateStatisticalRelationship(List<Double> xClosingPrices, List<Double> yClosingPrices,
+                                                                              Integer periodLength) {
+
+        xClosingPrices = xClosingPrices.subList(Math.max(0, xClosingPrices.size() - periodLength), xClosingPrices.size());
+        yClosingPrices = yClosingPrices.subList(Math.max(0, yClosingPrices.size() - periodLength), yClosingPrices.size());
+
+        double[] xClosingPricesArr = xClosingPrices.stream().mapToDouble(Double::doubleValue).toArray();
+        double[] yClosingPricesArr = yClosingPrices.stream().mapToDouble(Double::doubleValue).toArray();
+
+        PearsonsCorrelation correlation = new PearsonsCorrelation();
+        double corr = correlation.correlation(xClosingPricesArr, yClosingPricesArr);
+        double beta = calculateBeta(xClosingPricesArr, yClosingPricesArr);
+
+        return new StatisticalRelationshipDto(corr, beta);
+    }
+
+    public static double calculateBeta(double[] xClosingPrices, double[] yClosingPrices) {
+        Covariance covariance = new Covariance();
+        Variance variance = new Variance();
+
+        return covariance.covariance(xClosingPrices, yClosingPrices) / variance.evaluate(xClosingPrices);
+    }
 }
