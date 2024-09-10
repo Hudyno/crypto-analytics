@@ -1,6 +1,6 @@
 package com.crypto.analytics.persistence.service;
 
-import com.crypto.analytics.persistence.dto.PairLight;
+import com.crypto.analytics.dto.PairLightDto;
 import com.crypto.analytics.persistence.repository.AnalyticsPairRepository;
 import com.crypto.persistence.model.ExchangeType;
 import lombok.RequiredArgsConstructor;
@@ -20,17 +20,17 @@ public class AnalyticsPairService {
             "USD", 1, "USDT", 2, "USDC", 3, "DAI", 4, "BTC", 5, "ETH", 6
     );
 
-    public List<PairLight> getDistinctPairsByPreferredQuoteSymbols(ExchangeType exchangeType) {
-        List<PairLight> pairs = analyticsPairRepository.findDistinctPairsByFirstExchange(exchangeType);
+    public List<PairLightDto> getDistinctPairsByPreferredQuoteSymbols(ExchangeType exchangeType) {
+        List<PairLightDto> pairs = analyticsPairRepository.findDistinctPairsByFirstExchange(exchangeType);
 
-        Map<String, List<PairLight>> associatedQuotesToBaseSymbol = pairs.stream().collect(Collectors.groupingBy(PairLight::getBaseSymbol));
+        Map<String, List<PairLightDto>> associatedQuotesToBaseSymbol = pairs.stream().collect(Collectors.groupingBy(PairLightDto::getBaseSymbol));
 
         return associatedQuotesToBaseSymbol.values().stream()
                                                     .map(this::getBestQuote)
                                                     .toList();
     }
 
-    private PairLight getBestQuote(List<PairLight> pairs) {
+    private PairLightDto getBestQuote(List<PairLightDto> pairs) {
         return pairs.stream()
                     .min((p1, p2) -> {
                         int index1 = preferredQuoteSymbols.getOrDefault(p1.getQuoteSymbol(), Integer.MAX_VALUE);

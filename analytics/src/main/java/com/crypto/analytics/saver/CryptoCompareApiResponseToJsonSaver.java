@@ -1,7 +1,7 @@
 package com.crypto.analytics.saver;
 
 import com.crypto.analytics.api.AnalyticsCryptoCompareDataApi;
-import com.crypto.analytics.persistence.dto.PairLight;
+import com.crypto.analytics.dto.PairLightDto;
 import com.crypto.analytics.persistence.service.AnalyticsPairService;
 import com.crypto.analytics.util.CollectionUtil;
 import com.crypto.analytics.util.JsonUtil;
@@ -28,7 +28,7 @@ public class CryptoCompareApiResponseToJsonSaver extends ApiResponseToJsonSaver 
     }
 
     public void saveCexHistoricalOHLCV(String fileName) {
-        List<PairLight> pairs = analyticsPairService.getDistinctPairsByPreferredQuoteSymbols(ExchangeType.CEX);
+        List<PairLightDto> pairs = analyticsPairService.getDistinctPairsByPreferredQuoteSymbols(ExchangeType.CEX);
         List<HistoricalOHLCVParameters> parameters = createInceptionOHLCVRequest(pairs);
 
         this.batchSaveApiResponse(
@@ -39,7 +39,7 @@ public class CryptoCompareApiResponseToJsonSaver extends ApiResponseToJsonSaver 
     }
 
     public void saveDexHistoricalOHLCV(String fileName) {
-        List<PairLight> pairs = analyticsPairService.getDistinctPairsByPreferredQuoteSymbols(ExchangeType.DEX);
+        List<PairLightDto> pairs = analyticsPairService.getDistinctPairsByPreferredQuoteSymbols(ExchangeType.DEX);
         List<HistoricalOHLCVParameters> parameters = createInceptionOHLCVRequest(pairs);
 
         this.batchSaveApiResponse(
@@ -49,7 +49,7 @@ public class CryptoCompareApiResponseToJsonSaver extends ApiResponseToJsonSaver 
         );
     }
 
-    private List<HistoricalOHLCVParameters> createInceptionOHLCVRequest(List<PairLight> pairs) {
+    private List<HistoricalOHLCVParameters> createInceptionOHLCVRequest(List<PairLightDto> pairs) {
         return pairs.stream()
                     .map(pair -> {
                         HistoricalOHLCVParameters request = new HistoricalOHLCVParameters(pair.getExchange(), pair.getBaseSymbol() + '-' + pair.getQuoteSymbol());
