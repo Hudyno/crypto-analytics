@@ -25,23 +25,18 @@ public class DatabasePopulate {
     private final MetricsComposer metricsComposer;
 
     public void populateMetrics() {
-        Map<String, List<CoinClosingPriceProjection>> coinsClosingPrices = priceTimeSeriesEntryService.getAllClosingPrices();
+        List<CoinClosingPricesDto> coinsClosingPrices = priceTimeSeriesEntryService.getAllCoinClosingPrices();
 
         coinsClosingPrices.forEach(this::populateMetrics);
     }
 
-    private void populateMetrics(String symbol, List<CoinClosingPriceProjection> projections) {
-        Optional<Metrics> managedMetrics = metricsComposer.saveFromValues(symbol);
+    private void populateMetrics(CoinClosingPricesDto coinClosingPrices) {
+        Optional<Metrics> managedMetrics = metricsComposer.saveFromValues(coinClosingPrices.getSymbol());
         if (managedMetrics.isEmpty()) {
             return;
         }
 
-        List<Double> closingPrices = projections.stream()
-                                                .sorted(Comparator.comparing(CoinClosingPriceProjection::getTime))
-                                                .map(CoinClosingPriceProjection::getClose)
-                                                .toList();
-
-        populateDescriptiveStatistics(managedMetrics.get(), closingPrices);
+        populateDescriptiveStatistics(managedMetrics.get(), coinClosingPrices.getClosingPrices());
     }
 
     private void populateDescriptiveStatistics(Metrics metrics, List<Double> closingPrices) {

@@ -1,5 +1,7 @@
 package com.crypto.persistence.service;
 
+import com.crypto.persistence.dto.CoinClosingPricesDto;
+import com.crypto.persistence.dto.TimeClosingPriceDto;
 import com.crypto.persistence.projection.CoinClosingPriceProjection;
 import com.crypto.persistence.model.PriceTimeSeriesEntry;
 import com.crypto.persistence.repository.PriceTimeSeriesEntryRepository;
@@ -27,12 +29,22 @@ public class PriceTimeSeriesEntryService extends BaseService<PriceTimeSeriesEntr
         return this.entryRepository.findAllBaseSymbols();
     }
 
-    public Map<String, List<CoinClosingPriceProjection>> getAllClosingPrices() {
+    public List<CoinClosingPricesDto> getAllCoinClosingPrices() {
         List<CoinClosingPriceProjection> coinsClosingPrices = entryRepository.findBy();
 
-        return coinsClosingPrices.stream()
-                                 .collect(Collectors.groupingBy(CoinClosingPriceProjection::getBaseSymbolSymbol));
 
+        Map<String, List<CoinClosingPriceProjection>> groupedBySymbol = coinsClosingPrices.stream()
+                                                                                          .collect(Collectors.groupingBy(CoinClosingPriceProjection::getBaseSymbolSymbol));
+
+        return groupedBySymbol.entrySet().stream()
+                                         .map(entry -> {
+                                             List<TimeClosingPriceDto> timeClosingPrice = entry.getValue().stream()
+                                                                                                          .map(it -> new TimeClosingPriceDto(it.getTime(), it.getClose()))
+                                                                                                          .toList();
+
+                                             return new CoinClosingPricesDto(entry.getKey(), timeClosingPrice);
+                                        })
+                                        .toList();
     }
 
 
