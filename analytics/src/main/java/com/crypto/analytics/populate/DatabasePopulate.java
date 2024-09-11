@@ -17,8 +17,8 @@ import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Stream;
 
 @Service
 @RequiredArgsConstructor
@@ -36,9 +36,18 @@ public class DatabasePopulate {
     }
 
     private void populateDescriptiveStatistics(CoinClosingPricesDto coinClosingPrices, IntervalType interval) {
-        DescriptiveStatisticsDto statisticsDto = StatisticsService.calculateDescriptiveStatistics(coinClosingPrices.getClosingPrices());
+        Stream.of(Period.values()).forEach(period -> {
 
-        descriptiveStatisticsComposer.saveFromDescriptiveStatisticsDto(coinClosingPrices.getSymbol(), statisticsDto, interval, Period.ALL_TIME );
+            if (isShorterThanPeriod(coinClosingPrices.getClosingPrices().size(), period)) {
+                        return;
+            }
+
+            DescriptiveStatisticsDto statisticsDto = StatisticsService.calculateDescriptiveStatistics(coinClosingPrices.getClosingPrices(),
+                                                                                                      Integer.parseInt(period.getValue()));
+
+            descriptiveStatisticsComposer.saveFromDescriptiveStatisticsDto(coinClosingPrices.getSymbol(), statisticsDto,
+                                                                           interval, period);
+        });
     }
 
     public void populateStatisticalRelationship(String compareToSymbol) {
@@ -65,21 +74,14 @@ public class DatabasePopulate {
     public void populateStatisticalRelationship(CoinClosingPricesDto xCoinClosingPrices, CoinClosingPricesDto yCoinClosingPrices,
                                                  IntervalType interval) {
 
-        Map<Period, Integer> periodToDaysMap = Map.of(
-                Period.ALL_TIME, xCoinClosingPrices.getClosingPrices().size(),
-                Period.LAST_60D, 60,
-                Period.LAST_120D, 120,
-                Period.LAST_365D, 365
-        );
-
-        periodToDaysMap.forEach((period, nDays) -> {
-            if (xCoinClosingPrices.getClosingPrices().size() < nDays || yCoinClosingPrices.getClosingPrices().size() < nDays) {
+        Stream.of(Period.values()).forEach(period -> {
+            if (isShorterThanPeriod(xCoinClosingPrices.getClosingPrices().size(), period)) {
                 return;
             }
 
             StatisticalRelationshipDto relationship = StatisticsService.calculateStatisticalRelationship(xCoinClosingPrices.getClosingPrices(),
                                                                                                          yCoinClosingPrices.getClosingPrices(),
-                                                                                                         nDays);
+                                                                                                         Integer.parseInt(period.getValue()));
 
             statisticalRelationshipComposer.saveFromStatisticalRelationshipDto(
                     xCoinClosingPrices.getSymbol(), yCoinClosingPrices.getSymbol(), interval, period, relationship
@@ -88,4 +90,10 @@ public class DatabasePopulate {
         });
     }
 
+    private boolean isShorterThanPeriod(Integer length, Period period) {
+        if (period == Period.ALL_TIME) {
+            return false;
+        }
+        return length < Integer.parseInt(period.getValue());
+    }
 }

@@ -13,7 +13,9 @@ import java.util.List;
 @Service
 public class StatisticsService {
 
-    public static DescriptiveStatisticsDto calculateDescriptiveStatistics(List<Double> closingPrices) {
+    public static DescriptiveStatisticsDto calculateDescriptiveStatistics(List<Double> closingPrices, Integer periodLength) {
+
+        closingPrices = trimBasedOnPeriod(closingPrices, periodLength);
 
         double[] closingPricesArr = closingPrices.stream().mapToDouble(Double::doubleValue).toArray();
 
@@ -28,9 +30,8 @@ public class StatisticsService {
 
     public static StatisticalRelationshipDto calculateStatisticalRelationship(List<Double> xClosingPrices, List<Double> yClosingPrices,
                                                                               Integer periodLength) {
-
-        xClosingPrices = xClosingPrices.subList(Math.max(0, xClosingPrices.size() - periodLength), xClosingPrices.size());
-        yClosingPrices = yClosingPrices.subList(Math.max(0, yClosingPrices.size() - periodLength), yClosingPrices.size());
+        xClosingPrices = trimBasedOnPeriod(xClosingPrices, periodLength);
+        yClosingPrices = trimBasedOnPeriod(yClosingPrices, periodLength);
 
         double[] xClosingPricesArr = xClosingPrices.stream().mapToDouble(Double::doubleValue).toArray();
         double[] yClosingPricesArr = yClosingPrices.stream().mapToDouble(Double::doubleValue).toArray();
@@ -47,5 +48,12 @@ public class StatisticsService {
         Variance variance = new Variance();
 
         return covariance.covariance(xClosingPrices, yClosingPrices) / variance.evaluate(xClosingPrices);
+    }
+
+    private static List<Double> trimBasedOnPeriod(List<Double> prices, Integer periodLength) {
+        if (periodLength != Integer.MAX_VALUE) {
+            return prices.subList(Math.max(0, prices.size() - periodLength), prices.size());
+        }
+        return prices;
     }
 }
