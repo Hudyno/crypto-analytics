@@ -26,9 +26,9 @@ import java.time.Instant;
 @NoArgsConstructor
 @Table(
         indexes = {
-                @Index(name = "idx_base_symbol", columnList = "base_symbol"),
-                @Index(name = "idx_to_symbol", columnList = "to_symbol"),
-                @Index(name = "idx_period", columnList = "period")
+                @Index(name = "idx_stat_base_symbol", columnList = "base_symbol"),
+                @Index(name = "idx_stat_to_symbol", columnList = "to_symbol"),
+                @Index(name = "idx_stat_period", columnList = "period")
         },
         uniqueConstraints = {
                 @UniqueConstraint(columnNames = { "baseSymbol", "toSymbol", "interval", "period" })
