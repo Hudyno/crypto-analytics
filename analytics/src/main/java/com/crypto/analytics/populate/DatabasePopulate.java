@@ -1,7 +1,6 @@
 package com.crypto.analytics.populate;
 
 import com.crypto.analytics.composer.entity.DescriptiveStatisticsComposer;
-import com.crypto.analytics.composer.entity.MetricsComposer;
 import com.crypto.analytics.composer.entity.StatisticalRelationshipComposer;
 import com.crypto.analytics.dto.DescriptiveStatisticsDto;
 import com.crypto.analytics.dto.StatisticalRelationshipDto;
@@ -10,7 +9,6 @@ import com.crypto.analytics.service.StatisticsService;
 import com.crypto.persistence.dto.CoinClosingPricesDto;
 import com.crypto.persistence.dto.TimeClosingPriceDto;
 import com.crypto.persistence.model.IntervalType;
-import com.crypto.persistence.model.Metrics;
 import com.crypto.persistence.model.Period;
 import com.crypto.persistence.service.PriceTimeSeriesEntryService;
 import lombok.RequiredArgsConstructor;
@@ -29,28 +27,18 @@ public class DatabasePopulate {
 
     private final PriceTimeSeriesEntryService priceTimeSeriesEntryService;
     private final DescriptiveStatisticsComposer descriptiveStatisticsComposer;
-    private final MetricsComposer metricsComposer;
     private final StatisticalRelationshipComposer statisticalRelationshipComposer;
 
-    public void populateMetrics() {
-        List<CoinClosingPricesDto> coinsClosingPrices = priceTimeSeriesEntryService.getAllCoinClosingPrices();
+    public void populateDescriptiveStatistics() {
+        List<CoinClosingPricesDto> allCoinsPrices = priceTimeSeriesEntryService.getAllCoinClosingPrices();
 
-        coinsClosingPrices.forEach(this::populateMetrics);
+        allCoinsPrices.forEach(it -> populateDescriptiveStatistics(it, IntervalType.DAILY));
     }
 
-    private void populateMetrics(CoinClosingPricesDto coinClosingPrices) {
-        Optional<Metrics> managedMetrics = metricsComposer.saveFromValues(coinClosingPrices.getSymbol());
-        if (managedMetrics.isEmpty()) {
-            return;
-        }
+    private void populateDescriptiveStatistics(CoinClosingPricesDto coinClosingPrices, IntervalType interval) {
+        DescriptiveStatisticsDto statisticsDto = StatisticsService.calculateDescriptiveStatistics(coinClosingPrices.getClosingPrices());
 
-        populateDescriptiveStatistics(managedMetrics.get(), coinClosingPrices.getClosingPrices());
-    }
-
-    private void populateDescriptiveStatistics(Metrics metrics, List<Double> closingPrices) {
-        DescriptiveStatisticsDto statisticsDto = StatisticsService.calculateDescriptiveStatistics(closingPrices);
-
-        descriptiveStatisticsComposer.saveFromDescriptiveStatisticsDto(metrics.getId(), statisticsDto, IntervalType.DAILY);
+        descriptiveStatisticsComposer.saveFromDescriptiveStatisticsDto(coinClosingPrices.getSymbol(), statisticsDto, interval, Period.ALL_TIME );
     }
 
     public void populateStatisticalRelationship(String compareToSymbol) {
