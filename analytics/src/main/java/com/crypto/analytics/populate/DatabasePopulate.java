@@ -42,11 +42,13 @@ public class DatabasePopulate {
                         return;
             }
 
-            DescriptiveStatisticsDto statisticsDto = StatisticsService.calculateDescriptiveStatistics(coinClosingPrices.getClosingPrices(),
-                                                                                                      Integer.parseInt(period.getValue()));
+            Optional<DescriptiveStatisticsDto> statistics = StatisticsService.calculateDescriptiveStatistics(coinClosingPrices.getClosingPrices(),
+                                                                                                                Integer.parseInt(period.getValue()));
 
-            descriptiveStatisticsComposer.saveFromDescriptiveStatisticsDto(coinClosingPrices.getSymbol(), statisticsDto,
-                                                                           interval, period);
+            statistics.ifPresent(it ->
+                    descriptiveStatisticsComposer.saveFromDescriptiveStatisticsDto(coinClosingPrices.getSymbol(), statistics.get(),
+                                                                                   interval, period)
+            );
         });
     }
 

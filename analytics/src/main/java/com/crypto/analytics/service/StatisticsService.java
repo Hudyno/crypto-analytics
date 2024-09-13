@@ -9,11 +9,12 @@ import org.apache.commons.math3.stat.descriptive.rank.Median;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class StatisticsService {
 
-    public static DescriptiveStatisticsDto calculateDescriptiveStatistics(List<Double> closingPrices, Integer periodLength) {
+    public static Optional<DescriptiveStatisticsDto> calculateDescriptiveStatistics(List<Double> closingPrices, Integer periodLength) {
 
         closingPrices = trimBasedOnPeriod(closingPrices, periodLength);
 
@@ -21,15 +22,26 @@ public class StatisticsService {
 
         org.apache.commons.math3.stat.descriptive.DescriptiveStatistics descriptiveStatistics = new org.apache.commons.math3.stat.descriptive.DescriptiveStatistics(closingPricesArr);
 
-        return new DescriptiveStatisticsDto(
-                descriptiveStatistics.getMean(), new Median().evaluate(closingPricesArr), descriptiveStatistics.getStandardDeviation(),
-                descriptiveStatistics.getKurtosis(), descriptiveStatistics.getSkewness(), descriptiveStatistics.getMin(),
-                descriptiveStatistics.getMax(), descriptiveStatistics.getN()
-        );
+        Double standardDeviation = descriptiveStatistics.getStandardDeviation();
+        if (standardDeviation.isNaN()) {
+            return Optional.empty();
+        }
+
+        Double mean = descriptiveStatistics.getMean();
+        Double dailyVolatility = calculateVolatility(standardDeviation, mean);
+        Double weeklyVolatility = dailyVolatility * Math.sqrt(7);
+        Double monthlyVolatility = dailyVolatility * Math.sqrt(30);
+        Double yearlyVolatility = (periodLength >= 365) ? dailyVolatility * Math.sqrt(365) : null;
+
+        return Optional.of(new DescriptiveStatisticsDto(
+                mean, new Median().evaluate(closingPricesArr), standardDeviation, descriptiveStatistics.getKurtosis(),
+                descriptiveStatistics.getSkewness(), descriptiveStatistics.getMin(), descriptiveStatistics.getMax(),
+                descriptiveStatistics.getN(), dailyVolatility, weeklyVolatility, monthlyVolatility, yearlyVolatility
+        ));
     }
 
-    public static StatisticalRelationshipDto calculateStatisticalRelationship(List<Double> xClosingPrices, List<Double> yClosingPrices,
-                                                                              Integer periodLength) {
+    public static Optional<StatisticalRelationshipDto> calculateStatisticalRelationship(List<Double> xClosingPrices, List<Double> yClosingPrices,
+                                                                                        Integer periodLength) {
         xClosingPrices = trimBasedOnPeriod(xClosingPrices, periodLength);
         yClosingPrices = trimBasedOnPeriod(yClosingPrices, periodLength);
 
@@ -48,6 +60,10 @@ public class StatisticsService {
         Variance variance = new Variance();
 
         return covariance.covariance(xClosingPrices, yClosingPrices) / variance.evaluate(xClosingPrices);
+    }
+
+    public static Double calculateVolatility(Double standardDeviation, Double mean) {
+        return (standardDeviation / mean) * 100;
     }
 
     private static List<Double> trimBasedOnPeriod(List<Double> prices, Integer periodLength) {

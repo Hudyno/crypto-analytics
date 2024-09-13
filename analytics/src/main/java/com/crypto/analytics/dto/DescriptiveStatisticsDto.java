@@ -22,4 +22,12 @@ public class DescriptiveStatisticsDto {
     private Double maximum;
 
     private Long count;
+
+    private Double dailyVolatility;
+
+    private Double weeklyVolatility;
+
+    private Double monthlyVolatility;
+
+    private Double yearlyVolatility;
 }
