@@ -2,7 +2,7 @@ package com.crypto.analytics.saver;
 
 import com.crypto.analytics.api.AnalyticsCryptoCompareDataApi;
 import com.crypto.analytics.dto.PairLightDto;
-import com.crypto.analytics.persistence.service.AnalyticsPairService;
+import com.crypto.analytics.service.AnalyticsPairService;
 import com.crypto.analytics.util.CollectionUtil;
 import com.crypto.analytics.util.JsonUtil;
 import com.crypto.cryptocompare.api.configuration.CryptoCompareConfig;
