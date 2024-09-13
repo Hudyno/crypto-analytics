@@ -52,6 +52,12 @@ public abstract class BaseService<T, ID> {
         log.info("Saved {} entities", cleanedList.size());
     }
 
+    public List<T> findAll() {
+        List<T> entities = this.repository.findAll();
+        log.info("Found {} entities", entities.size());
+        return entities;
+    }
+
     private void logEntityNotFound(ID id) {
         log.info(ENTITY_NOT_FOUND, id);
     }
