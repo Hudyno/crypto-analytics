@@ -66,6 +66,9 @@ public class DatabasePopulate {
         List<TimeClosingPriceDto> backup = new ArrayList<>(yCoinClosingPrices.get().getTimeClosingPrice());
 
         allCoinsPrices.forEach(it -> {
+            it.setTimeClosingPrice(new ArrayList<>(it.getTimeClosingPrice()));
+            yCoinClosingPrices.get().setTimeClosingPrice(new ArrayList<>(yCoinClosingPrices.get().getTimeClosingPrice()));
+
             PriceService.synchronizeClosingPriceIntervals(it.getTimeClosingPrice(), yCoinClosingPrices.get().getTimeClosingPrice());
             populateStatisticalRelationship(it, yCoinClosingPrices.get(), IntervalType.DAILY);
 
@@ -81,14 +84,14 @@ public class DatabasePopulate {
                 return;
             }
 
-            StatisticalRelationshipDto relationship = StatisticsService.calculateStatisticalRelationship(xCoinClosingPrices.getClosingPrices(),
+            Optional<StatisticalRelationshipDto> relationship = StatisticsService.calculateStatisticalRelationship(xCoinClosingPrices.getClosingPrices(),
                                                                                                          yCoinClosingPrices.getClosingPrices(),
                                                                                                          Integer.parseInt(period.getValue()));
-
-            statisticalRelationshipComposer.saveFromStatisticalRelationshipDto(
-                    xCoinClosingPrices.getSymbol(), yCoinClosingPrices.getSymbol(), interval, period, relationship
+            relationship.ifPresent(it ->
+                    statisticalRelationshipComposer.saveFromStatisticalRelationshipDto(xCoinClosingPrices.getSymbol(), yCoinClosingPrices.getSymbol(),
+                                                                                       interval, period, relationship.get()
+                    )
             );
-
         });
     }
 

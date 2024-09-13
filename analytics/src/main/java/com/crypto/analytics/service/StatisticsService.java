@@ -49,13 +49,17 @@ public class StatisticsService {
         double[] yClosingPricesArr = yClosingPrices.stream().mapToDouble(Double::doubleValue).toArray();
 
         PearsonsCorrelation correlation = new PearsonsCorrelation();
-        double corr = correlation.correlation(xClosingPricesArr, yClosingPricesArr);
-        double beta = calculateBeta(xClosingPricesArr, yClosingPricesArr);
+        Double corr = correlation.correlation(xClosingPricesArr, yClosingPricesArr);
+        if (corr.isNaN()) {
+            return Optional.empty();
+        }
 
-        return new StatisticalRelationshipDto(corr, beta);
+        Double beta = calculateBeta(xClosingPricesArr, yClosingPricesArr);
+
+        return Optional.of(new StatisticalRelationshipDto(corr, beta));
     }
 
-    public static double calculateBeta(double[] xClosingPrices, double[] yClosingPrices) {
+    public static Double calculateBeta(double[] xClosingPrices, double[] yClosingPrices) {
         Covariance covariance = new Covariance();
         Variance variance = new Variance();
 
