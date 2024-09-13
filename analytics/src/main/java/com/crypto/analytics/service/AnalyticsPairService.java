@@ -1,4 +1,4 @@
-package com.crypto.analytics.persistence.service;
+package com.crypto.analytics.service;
 
 import com.crypto.analytics.dto.PairLightDto;
 import com.crypto.persistence.dto.PairExchangeDetailDto;
