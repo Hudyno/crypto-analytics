@@ -1,5 +1,6 @@
 package com.crypto.persistence.repository;
 
+import com.crypto.persistence.model.MarketCapTier;
 import com.crypto.persistence.projection.CoinClosingPriceProjection;
 import com.crypto.persistence.model.PriceTimeSeriesEntry;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -16,4 +17,6 @@ public interface PriceTimeSeriesEntryRepository extends JpaRepository<PriceTimeS
     Set<String> findAllBaseSymbols();
 
     List<CoinClosingPriceProjection> findBy();
+
+    List<CoinClosingPriceProjection> findAllByBaseSymbol_Tier(MarketCapTier tier);
 }

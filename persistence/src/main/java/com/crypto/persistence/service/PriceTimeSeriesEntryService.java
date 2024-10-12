@@ -2,6 +2,7 @@ package com.crypto.persistence.service;
 
 import com.crypto.persistence.dto.CoinClosingPricesDto;
 import com.crypto.persistence.dto.TimeClosingPriceDto;
+import com.crypto.persistence.model.MarketCapTier;
 import com.crypto.persistence.projection.CoinClosingPriceProjection;
 import com.crypto.persistence.model.PriceTimeSeriesEntry;
 import com.crypto.persistence.repository.PriceTimeSeriesEntryRepository;
@@ -31,20 +32,27 @@ public class PriceTimeSeriesEntryService extends BaseService<PriceTimeSeriesEntr
 
     public List<CoinClosingPricesDto> getAllCoinClosingPrices() {
         List<CoinClosingPriceProjection> coinsClosingPrices = entryRepository.findBy();
+        return map(coinsClosingPrices);
+    }
 
+    public List<CoinClosingPricesDto> getAllCoinClosingPricesByTier(MarketCapTier tier) {
+        List<CoinClosingPriceProjection> coinsClosingPrices = entryRepository.findAllByBaseSymbol_Tier(tier);
+        return map(coinsClosingPrices);
+    }
 
-        Map<String, List<CoinClosingPriceProjection>> groupedBySymbol = coinsClosingPrices.stream()
-                                                                                          .collect(Collectors.groupingBy(CoinClosingPriceProjection::getBaseSymbolSymbol));
+    private List<CoinClosingPricesDto> map(List<CoinClosingPriceProjection> projections) {
+        Map<String, List<CoinClosingPriceProjection>> groupedBySymbol = projections.stream()
+                                                                                   .collect(Collectors.groupingBy(CoinClosingPriceProjection::getBaseSymbolSymbol));
 
         return groupedBySymbol.entrySet().stream()
-                                         .map(entry -> {
-                                             List<TimeClosingPriceDto> timeClosingPrice = entry.getValue().stream()
-                                                                                                          .map(it -> new TimeClosingPriceDto(it.getTime(), it.getClose()))
-                                                                                                          .toList();
+                .map(entry -> {
+                    List<TimeClosingPriceDto> timeClosingPrice = entry.getValue().stream()
+                                                                                 .map(it -> new TimeClosingPriceDto(it.getTime(), it.getClose()))
+                                                                                 .toList();
 
-                                             return new CoinClosingPricesDto(entry.getKey(), timeClosingPrice);
-                                        })
-                                        .toList();
+                    return new CoinClosingPricesDto(entry.getKey(), timeClosingPrice);
+                })
+                .toList();
     }
 
 

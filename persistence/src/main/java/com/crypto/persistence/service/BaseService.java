@@ -36,6 +36,12 @@ public abstract class BaseService<T, ID> {
         return entity;
     }
 
+    public T getReferenceById(ID id) {
+        T entity = repository.getReferenceById(id);
+        log.info("Returned reference with id: {}", id);
+        return entity;
+    }
+
     public T save(T entity) {
         T savedEntity = this.repository.save(entity);
         log.info("Saved one new entity");

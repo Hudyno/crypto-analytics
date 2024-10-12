@@ -1,10 +1,14 @@
 package com.crypto.analytics.populate;
 
 import com.crypto.analytics.api.AnalyticsCryptoCompareDataApi;
+import com.crypto.analytics.composer.entity.CoinComposer;
+import com.crypto.analytics.composer.entity.CoinMetricsComposer;
 import com.crypto.analytics.composer.entity.ExchangeComposer;
 import com.crypto.analytics.composer.entity.PairComposer;
 import com.crypto.cryptocompare.api.data.request.MarketsAndInstrumentsParameters;
 import com.crypto.cryptocompare.api.data.request.MarketsParameters;
+import com.crypto.cryptocompare.api.data.request.TopListParameters;
+import com.crypto.cryptocompare.api.data.response.AssetTopListData;
 import com.crypto.cryptocompare.api.data.response.CexData;
 import com.crypto.cryptocompare.api.data.response.DexData;
 import com.crypto.cryptocompare.api.data.response.ExchangeData;
@@ -29,6 +33,8 @@ public class ApiToDatabasePopulate {
     private final ExchangeComposer exchangeComposer;
     private final ExchangeService exchangeService;
     private final PairService pairService;
+    private final CoinComposer coinComposer;
+    private final CoinMetricsComposer coinMetricsComposer;
 
     public void populateCexExchanges() {
         Optional<Map<String, CexData>> response = cryptoCompareDataApi.executeGet(
@@ -68,6 +74,18 @@ public class ApiToDatabasePopulate {
         response.ifPresent(this::processExchangeData);
     }
 
+    public void populateCoinMetrics() {
+        TopListParameters parameters = new TopListParameters();
+        parameters.setPageSize(100);
+        parameters.setGroups(List.of("ID","BASIC","SUPPLY","PRICE","MKT_CAP","VOLUME","CHANGE","TOPLIST_RANK","CLASSIFICATION"));
+        List<AssetTopListData> topListData = cryptoCompareDataApi.getAllTopList(parameters);
+
+        topListData.forEach(data -> {
+            coinComposer.updateFromAssetTopListData(data);
+            coinMetricsComposer.saveFromAssetTopListData(data);
+        });
+    }
+
     private void processExchangeData(Map<String,? extends ExchangeData> exchangeNameExchangeData) {
 
         List<Pair> pairs = exchangeNameExchangeData.entrySet().stream()
@@ -76,4 +94,5 @@ public class ApiToDatabasePopulate {
 
         pairService.saveAll(pairs);
     }
+
 }
